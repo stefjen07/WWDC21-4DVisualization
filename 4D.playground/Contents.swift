@@ -1,12 +1,13 @@
-# 4D Visualization
+/*:
+ # 4D Visualization
  *This playground renders 4D objects and allows to perform double rotations of them.*
  ### Objects:
- - *Tesseract* </br> <img src="https://i.imgur.com/6IJ0zv2.png" alt="tesseract" width="200"/>
- - *5-cell* </br> <img src="https://i.imgur.com/7NbEnsn.png" alt="5-cell" width="200"/>
- - *16-cell* </br> <img src="https://i.imgur.com/aVMYINv.png" alt="16-cell" width="200"/>
- - *24-cell* </br> <img src="https://i.imgur.com/azVn5e6.png" alt="24-cell" width="200"/>
- - *120-cell* </br> <img src="https://i.imgur.com/BOop2Nu.png" alt="120-cell" width="200"/>
- - *600-cell* </br> <img src="https://i.imgur.com/JUtG05o.png" alt="600-cell" width="200"/>
+ - *Tesseract*
+ - *5-cell*
+ - *16-cell*
+ - *24-cell*
+ - *120-cell*
+ - *600-cell*
  ### Controls:
  
  - Switch object - N
@@ -30,3 +31,14 @@
  
  - Positive rotation by Z & W axes - G
  - Negative rotation by Z & W axes - H
+ */
+import PlaygroundSupport
+import SceneKit
+
+renderMode = .drawEdgesOnly
+renderColor = .red
+textBackgroundColor = .white
+selectingColor = .blue
+startSetup()
+PlaygroundPage.current.liveView = view
+startRender()
