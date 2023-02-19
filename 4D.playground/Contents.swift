@@ -31,6 +31,8 @@
  
  - Positive rotation by Z & W axes - G
  - Negative rotation by Z & W axes - H
+
+ - Reset position - C
  */
 import PlaygroundSupport
 import SceneKit
