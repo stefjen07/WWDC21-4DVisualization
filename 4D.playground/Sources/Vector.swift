@@ -38,21 +38,15 @@ struct Vector: Equatable {
 
 	func multiply(_ k: Double) -> Vector {
 		var a = self
-		a.x*=k
-		a.y*=k
-		a.z?*=k
-		if a.w != nil {
-			a.w!*=k
-		}
+		a.x *= k
+		a.y *= k
+		a.z? *= k
+		a.w? *= k
 		return a
 	}
 
 	func toSCNVector() -> SCNVector3 {
-		var tz = 0.0
-		if z != nil {
-			tz = z!
-		}
-		return SCNVector3(x, y, tz)
+		return SCNVector3(x, y, z ?? 0)
 	}
 
 	static func ==(lhs: Vector, rhs: Vector) -> Bool {
@@ -69,6 +63,20 @@ extension Vector {
 			return sqrt((vector1.x-vector2.x).square+(vector1.y-vector2.y).square+(z1-z2).square)
 		}
 		return sqrt((vector1.x-vector2.x).square+(vector1.y-vector2.y).square)
+	}
+
+	static func parity(_ vector: Vector, base: Vector) -> Bool {
+		if let z = vector.z, let w = vector.w {
+			var baseArr = [base.x,base.y,base.z,base.w]
+			var count = 0, a = [vector.x, vector.y, z, w]
+			for i in 0..<4 {
+				let j = baseArr.firstIndex(of: a[i])!
+				baseArr.remove(at: j)
+				count += j-1
+			}
+			return count % 2==0
+		}
+		return false
 	}
 }
 

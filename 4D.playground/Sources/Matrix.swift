@@ -40,10 +40,10 @@ class Matrix {
 		}
 	}
 	
-	func map( fnc: (_ v: Double, _ i: Int, _ j: Int) -> Double ) -> Matrix {
+	func map(operation: @escaping (_ v: Double, _ i: Int, _ j: Int) -> Double) -> Matrix {
 		for i in 0..<rows {
 			for j in 0..<cols {
-				data[i][j] = fnc(data[i][j], i, j)
+				data[i][j] = operation(data[i][j], i, j)
 			}
 		}
 		return self

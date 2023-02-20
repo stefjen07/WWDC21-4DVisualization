@@ -9,7 +9,7 @@ class Cell5: Object4D {
 			Vector(1/sqrt(10), -sqrt(1.5), 0, 0),
 			Vector(-2*sqrt(0.4), 0, 0, 0)
 		]
-		let edges = getAllPairs(vertices: vertices, distances: [2])
+		let edges = Edge.allPairs(vertices, distances: [2])
 		
 		super.init(name: "5-cell", vertexRadius: 1, vertices: vertices, edges: edges, cameraZ: 25)
 	}

@@ -20,96 +20,10 @@ let permutations = [
 	[Z,W]
 ]
 
-var currentObject = 0
-var selectedNode = -1
-var lastSelectedNode = -1
-var material = SCNMaterial()
-var selectingMaterial = SCNMaterial()
-
 public enum RenderMode {
 	case drawVerticesAndEdges
 	case drawVerticesOnly
 	case drawEdgesOnly
-}
-
-struct Edge {
-	var vertex1: Int
-	var vertex2: Int
-	init(_ vertex1: Int, _ vertex2: Int) {
-		self.vertex1 = vertex1
-		self.vertex2 = vertex2
-	}
-}
-
-func getAllPairs(vertices: [Vector], distances: [Double]) -> [Edge] {
-	var result = [Edge]()
-	for m in 0..<vertices.count-1 {
-		for k in m+1..<vertices.count {
-			let distance = Vector.distance(vertices[m],vertices[k]).rounded(toPlaces: 3)
-			for d in distances {
-				if(distance == d.rounded(toPlaces: 3)) {
-					result.append(Edge(m, k))
-					break
-				}
-			}
-		}
-	}
-	return result
-}
-
-func vectorParity(vector: Vector, base: Vector) -> Bool {
-	if let z = vector.z, let w = vector.w {
-		var baseArr = [base.x,base.y,base.z,base.w]
-		var count = 0, a = [vector.x, vector.y, z, w]
-		for i in 0..<4 {
-			let j = baseArr.firstIndex(of: a[i])!
-			baseArr.remove(at: j)
-			count += j-1
-		}
-		return count % 2==0
-	}
-	return false
-}
-
-func getPermutations(source: [Double]) -> [Vector] {
-	var result = [Vector]()
-	for x in 0..<source.count {
-		for y in 0..<source.count {
-			if(x == y) {
-				continue
-			}
-			for z in 0..<source.count {
-				if(x==z || y==z) {
-					continue
-				}
-				for w in 0..<source.count {
-					if(x==w || y==w || z==w) {
-						continue
-					}
-					result.append(Vector(source[x], source[y], source[z], source[w]))
-				}
-			}
-		}
-	}
-	return result
-}
-
-func evenPermutations(source: [Double]) -> [Vector] {
-	let base = Vector(source[0], source[1], source[2], source[3])
-	return getPermutations(source: source).filter { vectorParity(vector: $0, base: base) }
-}
-
-func signPermutations(source: [Double], currentIndex: Int = 0) -> [[Double]] {
-	if(currentIndex >= source.count) {
-		return [source]
-	}
-
-	var result = [[Double]]()
-	result.append(contentsOf: signPermutations(source: source, currentIndex: currentIndex+1))
-	var minusSource = source
-	minusSource[currentIndex] = -minusSource[currentIndex]
-	result.append(contentsOf: signPermutations(source: minusSource, currentIndex: currentIndex+1))
-	return result
 }
 
 public class FDView: SCNView {
@@ -118,8 +32,17 @@ public class FDView: SCNView {
 	var cameraNode = SCNNode()
 	var pointNodes = [SCNNode]()
 	var pointLines = SCNNode()
+	let material = SCNMaterial()
+	let selectingMaterial = SCNMaterial()
+
+	var currentObjectIndex = 0
+	var selectedNode: Int? = nil
+	var lastSelectedNode: Int? = nil
 
 	var objects = Object4D.defaultObjects
+	var currentObject: Object4D {
+		objects[currentObjectIndex]
+	}
 
 	var projectedVertices = [Vector]()
 
@@ -152,20 +75,20 @@ public class FDView: SCNView {
 				if pointNodes[i] == result.node {
 					if selectedNode == i {
 						lastSelectedNode = i
-						pointNodes[selectedNode].geometry?.materials = [material]
-						selectedNode = -1
+						pointNodes[i].geometry?.materials = [material]
+						selectedNode = nil
 					} else {
-						if(selectedNode != -1) {
+						if let selectedNode = selectedNode {
 							lastSelectedNode = selectedNode
 							pointNodes[selectedNode].geometry?.materials = [material]
 						}
 						selectedNode = i
-						let node = objects[currentObject].vertices[i]
+						let node = currentObject.vertices[i]
 						print("X: \(node.x) Y: \(node.y) Z: \(node.z!) W: \(node.w!)")
-						if(lastSelectedNode != -1) {
-							print("Distance from last node to current node: \(Vector.distance(objects[currentObject].vertices[lastSelectedNode], node))")
+						if let lastSelectedNode = lastSelectedNode {
+							print("Distance from last node to current node: \(Vector.distance(currentObject.vertices[lastSelectedNode], node))")
 						}
-						pointNodes[selectedNode].geometry?.materials = [selectingMaterial]
+						pointNodes[i].geometry?.materials = [selectingMaterial]
 					}
 					break
 				}
@@ -175,76 +98,63 @@ public class FDView: SCNView {
 
 	public override func keyDown(with event: NSEvent) {
 		let baseSpeed = 0.1
-		if(event.keyCode == 12) {
+		switch event.keyCode {
+		case 12:
 			speed[0] = baseSpeed
-		}
-		if(event.keyCode == 13) {
+		case 13:
 			speed[0] = -baseSpeed
-		}
-		if(event.keyCode == 0) {
+		case 0:
 			speed[1] = baseSpeed
-		}
-		if(event.keyCode == 1) {
+		case 1:
 			speed[1] = -baseSpeed
-		}
-		if(event.keyCode == 14) {
+		case 14:
 			speed[2] = baseSpeed
-		}
-		if(event.keyCode == 15) {
-			speed[2] = -baseSpeed
-		}
-		if(event.keyCode == 2) {
-			speed[3] = baseSpeed
-		}
-		if(event.keyCode == 3) {
+		case 15:
+			speed[2] = baseSpeed
+		case 2:
 			speed[3] = -baseSpeed
-		}
-		if(event.keyCode == 17) {
+		case 3:
+			speed[3] = -baseSpeed
+		case 17:
 			speed[4] = baseSpeed
-		}
-		if(event.keyCode == 16) {
+		case 16:
 			speed[4] = -baseSpeed
-		}
-		if(event.keyCode == 5) {
+		case 5:
 			speed[5] = baseSpeed
-		}
-		if(event.keyCode == 4) {
+		case 4:
 			speed[5] = -baseSpeed
-		}
-		if event.keyCode == 0x08 {
+		case 0x08:
 			theta = .init(repeating: .zero, count: 6)
-		}
-		if(event.keyCode == 45) {
+		case 45:
 			removeVertices()
 			selectedNode = -1
-			currentObject+=1
-			if(currentObject == objects.count) {
-				currentObject=0
-			}
-			cameraNode.position = .init(x: 0, y: 0, z: objects[currentObject].cameraZ)
-			addVertices(object: objects[currentObject])
+
+			currentObjectIndex = (currentObjectIndex + 1) % objects.count
+
+			cameraNode.position = .init(x: 0, y: 0, z: currentObject.cameraZ)
+			addVertices(object: currentObject)
 			updateDescription()
+		default:
+			break
 		}
 	}
 
 	public override func keyUp(with event: NSEvent) {
-		if(event.keyCode == 12 || event.keyCode == 13) {
+		switch event.keyCode {
+		case 12, 13:
 			speed[0] = 0
-		}
-		if(event.keyCode == 0 || event.keyCode == 1) {
+		case 0, 1:
 			speed[1] = 0
-		}
-		if(event.keyCode == 14 || event.keyCode == 15) {
+		case 14, 15:
 			speed[2] = 0
-		}
-		if(event.keyCode == 2 || event.keyCode == 3) {
+		case 2, 3:
 			speed[3] = 0
-		}
-		if(event.keyCode == 17 || event.keyCode == 16) {
+		case 17, 16:
 			speed[4] = 0
-		}
-		if(event.keyCode == 5 || event.keyCode == 4) {
+		case 5, 4:
 			speed[5] = 0
+		default:
+			break
 		}
 	}
 
@@ -327,19 +237,19 @@ public class FDView: SCNView {
 		let camera = SCNCamera()
 		camera.zFar = 1000
 		cameraNode.camera = camera
-		cameraNode.position = .init(x: 0, y: 0, z: objects[currentObject].cameraZ)
+		cameraNode.position = .init(x: 0, y: 0, z: currentObject.cameraZ)
 		scene?.rootNode.addChildNode(cameraNode)
-		addVertices(object: objects[currentObject])
+		addVertices(object: currentObject)
 		textView.backgroundColor = textBackgroundColor
-		textView.textColor = getTextColor()
+		textView.textColor = textColor
 		updateDescription()
 	}
 
 	func updateDescription() {
-		textView.string = objects[currentObject].description
+		textView.string = currentObject.description
 	}
 
-	func getTextColor() -> NSColor {
+	var textColor: NSColor {
 		if let background = CIColor(color: textBackgroundColor) {
 			let middle = (background.red+background.green+background.blue)/3.0
 			if(middle>0.5) {
@@ -351,7 +261,7 @@ public class FDView: SCNView {
 
 	public func startRender() {
 		Timer.scheduledTimer(withTimeInterval: 0.04167, repeats: true, block: { timer in
-			self.draw(object: self.objects[currentObject])
+			self.draw(object: self.currentObject)
 		})
 	}
 }
