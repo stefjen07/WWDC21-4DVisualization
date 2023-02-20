@@ -8,14 +8,14 @@ class Matrix {
 	var cols: Int {
 		data.first?.count ?? 0
 	}
-
+	
 	init(_ rows: Int, _ cols: Int) {
 		data = [[Double]]()
 		for _ in 0..<rows {
 			data.append(Array(repeating: 0, count: cols))
 		}
 	}
-
+	
 	init(_ vector: Vector) {
 		if let z = vector.z {
 			if let w = vector.w {
@@ -39,7 +39,7 @@ class Matrix {
 			]
 		}
 	}
-
+	
 	func map( fnc: (_ v: Double, _ i: Int, _ j: Int) -> Double ) -> Matrix {
 		for i in 0..<rows {
 			for j in 0..<cols {
@@ -56,7 +56,7 @@ extension Matrix {
 			return Double(i == j)
 		}
 	}
-
+	
 	static func rotation(_ axis1: Int, _ axis2: Int, _ d: Int, _ theta: Double) -> Matrix {
 		let rot = Matrix.identity(d)
 		rot.data[axis1][axis1] = cos(theta)
@@ -65,17 +65,17 @@ extension Matrix {
 		rot.data[axis2][axis2] = cos(theta)
 		return rot
 	}
-
+	
 	static func projection(_ n: Int, _ k: Double) -> Matrix {
 		return Matrix(n-1, n).map() { (v,i,j) -> Double in
 			return Double(i == j)*k
 		}
 	}
-
+	
 	static func perspective(_ n: Int, _ d: Double, _ p: Double) -> Matrix {
 		return Matrix.projection(n, 1.0/(d-p))
 	}
-
+	
 	static func multiply(_ m1: Matrix, _ m2: Matrix) -> Matrix {
 		if(m1.cols != m2.rows) {
 			return Matrix(0, 0)

@@ -56,7 +56,7 @@ struct Vector: Equatable {
 	}
 
 	static func ==(lhs: Vector, rhs: Vector) -> Bool {
-		return lhs.x.rounded(toPlaces: 8) == rhs.x.rounded(toPlaces: 8) && lhs.y.rounded(toPlaces: 8) == rhs.y.rounded(toPlaces: 8) && lhs.z?.rounded(toPlaces: 8) == rhs.z?.rounded(toPlaces: 8) && lhs.w?.rounded(toPlaces: 8) == rhs.w?.rounded(toPlaces: 8)
+		return lhs.x.rounded == rhs.x.rounded && lhs.y.rounded == rhs.y.rounded && lhs.z?.rounded == rhs.z?.rounded && lhs.w?.rounded == rhs.w?.rounded
 	}
 }
 
@@ -64,11 +64,11 @@ extension Vector {
 	static func distance(_ vector1: Vector, _ vector2: Vector) -> Double {
 		if let z1 = vector1.z, let z2 = vector2.z {
 			if let w1 = vector1.w, let w2 = vector2.w {
-				return sqrt(sqr(vector1.x-vector2.x)+sqr(vector1.y-vector2.y)+sqr(z1-z2)+sqr(w1-w2))
+				return sqrt((vector1.x-vector2.x).square+(vector1.y-vector2.y).square+(z1-z2).square+(w1-w2).square)
 			}
-			return sqrt(sqr(vector1.x-vector2.x)+sqr(vector1.y-vector2.y)+sqr(z1-z2))
+			return sqrt((vector1.x-vector2.x).square+(vector1.y-vector2.y).square+(z1-z2).square)
 		}
-		return sqrt(sqr(vector1.x-vector2.x)+sqr(vector1.y-vector2.y))
+		return sqrt((vector1.x-vector2.x).square+(vector1.y-vector2.y).square)
 	}
 }
 

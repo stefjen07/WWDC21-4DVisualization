@@ -41,6 +41,6 @@ renderMode = .drawEdgesOnly
 renderColor = .red
 textBackgroundColor = .white
 selectingColor = .blue
-startSetup()
+view.setup()
 PlaygroundPage.current.liveView = view
-startRender()
+view.startRender()
